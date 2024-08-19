@@ -1,0 +1,12 @@
+<div>
+    <h2>Lista de Especialidades</h2>
+    <ul>
+      <li *ngFor="let healthinsurance of healthinsurances">
+        {{ healthinsurance.nombre }}
+        <button (click)="delete(healthinsurance.id)">Eliminar</button>
+        <a [routerLink]="['/healthinsurances', healthinsurance.id]">Editar</a>
+      </li>
+    </ul>
+    <a [routerLink]="['/healthinsurances/new']">Añadir Nueva Especialidad</a>
+  </div>
+  

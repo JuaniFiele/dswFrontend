@@ -1,0 +1,10 @@
+<div>
+    <h2>{{ healthinsurance.id ? 'Editar Especialidad' : 'Nueva Especialidad' }}</h2>
+    <form (ngSubmit)="save()">
+      <label for="nombre">Nombre:</label>
+      <input id="nombre" [(ngModel)]="healthinsurance.nombre" name="nombre" required />
+      <button type="submit">Guardar</button>
+      <button type="button" (click)="cancel()">Cancelar</button>
+    </form>
+  </div>
+  
