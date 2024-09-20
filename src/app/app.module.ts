@@ -8,6 +8,8 @@ import { provideAnimationsAsync } from '@angular/platform-browser/animations/asy
 import { AppComponent } from './app.component';
 import { ListSecretarysComponent } from './components/list-secretary/list-secretary.component';
 import { AgregarEditarSecretaryComponent } from './components/agregar-editar-secretary/agregar-editar-secretary.component';
+import { ListMedicsComponent } from './components/list-medics/list-medics.component';
+import { AddEditMedicComponent } from './components/add-edit-medic/add-edit-medic.component';
 
 //Modulos
 import { SharedModule } from './shared/shared.module';
@@ -17,7 +19,9 @@ import { SharedModule } from './shared/shared.module';
   declarations: [
     AppComponent,
     ListSecretarysComponent,
-    AgregarEditarSecretaryComponent
+    AgregarEditarSecretaryComponent,
+    ListMedicsComponent,
+    AddEditMedicComponent,
   ],
   imports: [
     BrowserModule,
