@@ -7,7 +7,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { AddEditMedicComponent } from '../add-edit-medic/add-edit-medic.component.js';
 import { MedicService } from '../../services/medic.service.js';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { Observable } from 'rxjs';
+
 
 
 @Component({
@@ -18,7 +18,8 @@ import { Observable } from 'rxjs';
   styleUrl: './list-medics.component.css',
 })
 export class ListMedicsComponent implements OnInit, AfterViewInit {
-  displayedColumns: string[] = ['dnitype', 'dni', 'firstname', 'lastname', 'username', 'password', 'medicalConsultationValue', 'license','specialty', 'acciones'];//falta specialty
+  displayedColumns: string[] = ['dnitype', 'dni', 'firstname', 'lastname', 'username', 'password', 'medicalConsultationValue', 'license', 'acciones'];
+  //falta specialty 
   dataSource: MatTableDataSource<Medic>;
   loading: boolean = false;
 

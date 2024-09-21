@@ -3,10 +3,11 @@ export interface Medic {
   dni: string
   firstname: string
   lastname: string
-  dnitype: string
+  dniType: string
   username: string
   password: string
   medicalConsultationValue: number
   license: number
-  specialty: string
+  consultationHours?: []
+  specialty?: string
 }
