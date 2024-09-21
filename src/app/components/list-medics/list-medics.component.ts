@@ -18,7 +18,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
   styleUrl: './list-medics.component.css',
 })
 export class ListMedicsComponent implements OnInit, AfterViewInit {
-  displayedColumns: string[] = ['dnitype', 'dni', 'firstname', 'lastname', 'username', 'password', 'medicalConsultationValue', 'license', 'acciones'];
+  displayedColumns: string[] = ['dniType', 'dni', 'firstname', 'lastname', 'username', 'password', 'medicalConsultationValue', 'license', 'acciones'];
   //falta specialty 
   dataSource: MatTableDataSource<Medic>;
   loading: boolean = false;
@@ -41,49 +41,56 @@ export class ListMedicsComponent implements OnInit, AfterViewInit {
   }
 
   obtenerMedicos() {
-    this.loading = true;
-    this._medicService.getMedics().subscribe(data => {
-      this.loading = false;
-      this.dataSource.paginator = this.paginator;
-      this.dataSource.sort = this.sort;
-      this.dataSource.data = data;
-    });
-  }
-  applyFilter(event: Event) {
-    const filterValue = (event.target as HTMLInputElement).value;
-    this.dataSource.filter = filterValue.trim().toLowerCase();
-
-    if (this.dataSource.paginator) {
-      this.dataSource.paginator.firstPage();
+      this._medicService.getMedics().subscribe(response => {
+        console.log('Data recibida del backend:', response);
+        this.dataSource.data = response; // Asigna directamente la respuesta
+      }, error => {
+        console.error('Error al obtener medicos:', error);
+      });
     }
-  }
 
-  addEditMedic() {
-    const dialogRef = this.dialog.open(AddEditMedicComponent, {
-      width: '550px',
-      disableClose: true,
-    });
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        this.obtenerMedicos();
-      }
-    });
-  }
+  
 
-  deleteMedico(id: number) {
-    this.loading = true;
-    this._medicService.deleteMedico(id).subscribe(data => {
-      this.loading = false;
+applyFilter(event: Event){
+  const filterValue = event ? (event.target as HTMLInputElement).value : '';
+  this.dataSource.filter = filterValue.trim().toLowerCase();
+
+  if (this.dataSource.paginator) {
+    this.dataSource.paginator.firstPage();
+  }
+};
+
+addEditMedic() {
+  const dialogRef = this.dialog.open(AddEditMedicComponent, {
+    width: '550px',
+    disableClose: true,
+  });
+  dialogRef.afterClosed().subscribe(result => {
+    if (result) {
       this.obtenerMedicos();
-      this.mensajeExito();
-    });
-  }
-
-  mensajeExito() {
-    this._snackBar.open('El medico fue eliminado con exito', '', {
-      duration: 2000
     }
-    );
+  });
+}
+
+deleteMedico(id: number) {
+  this.loading = true;
+  this._medicService.deleteMedico(id).subscribe(data => {
+    this.loading = false;
+    this.obtenerMedicos();
+    this.mensajeExito();
+  });
+};
+
+mensajeExito() {
+  this._snackBar.open('El medico fue eliminado con exito', '', {
+    duration: 2000
   }
+  );
+}
 
 }
+
+function mensajeExito() {
+  throw new Error('Function not implemented.');
+}
+

@@ -25,7 +25,7 @@ export class AddEditMedicComponent implements OnInit {
     this.form = this.fb.group({
       firstname: ['', [Validators.required, Validators.maxLength(20)]],
       lastname: ['', [Validators.required, Validators.maxLength(20)]],
-      dnitype: ['', Validators.required],
+      dniType: ['', Validators.required],
       dni: ['', [Validators.required, Validators.pattern('^[0-9]*$')]],
       username: ['', [Validators.required, Validators.maxLength(20)]],
       password: ['', [Validators.required, Validators.maxLength(12)]],
@@ -42,17 +42,21 @@ export class AddEditMedicComponent implements OnInit {
   cancelar() {
     this.dialogRef.close(false);
   }
+  mensajeExito() {
+    this._snackBar.open('Medico agregado con exito', '', {
+      duration: 1500,
+    });
+  }
 
+
+  
   addEditMedico() {
 
-    if (this.form.invalid) {
-      return;
-    }
-    else {
+
       const medic: Medic = {
         firstname: this.form.value.firstname,
         lastname: this.form.value.lastname,
-        dniType: this.form.value.dnitype,
+        dniType: this.form.value.dniType,
         dni: this.form.value.dni,
         username: this.form.value.username,
         password: this.form.value.password,
@@ -63,6 +67,7 @@ export class AddEditMedicComponent implements OnInit {
       }
 
       this.loading = true;
+
       this._medicService.addMedico(medic).subscribe(() => {
         this.loading = false;
         this.mensajeExito();
@@ -71,9 +76,5 @@ export class AddEditMedicComponent implements OnInit {
     }
   }
 
-  mensajeExito() {
-    this._snackBar.open('Medico agregado con exito', '', {
-      duration: 1500,});
-  }
+ 
 
-}
