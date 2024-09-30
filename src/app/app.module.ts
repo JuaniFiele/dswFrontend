@@ -11,13 +11,17 @@ import { AgregarEditarSecretaryComponent } from './components/agregar-editar-sec
 
 //Modulos
 import { SharedModule } from './shared/shared.module';
+import { ListSpecialtyComponent } from './components/list-specialty/list-specialty.component';
+import { AgregarEditarSpecialtyComponent } from './components/agregar-editar-specialty/agregar-editar-specialty.component';
 
 
 @NgModule({
   declarations: [
     AppComponent,
     ListSecretarysComponent,
-    AgregarEditarSecretaryComponent
+    AgregarEditarSecretaryComponent,
+    ListSpecialtyComponent,
+    AgregarEditarSpecialtyComponent
   ],
   imports: [
     BrowserModule,

@@ -25,12 +25,12 @@ export class ListSecretarysComponent implements OnInit, AfterViewInit {
   @ViewChild(MatSort) sort!: MatSort;
 
   constructor(public dialog: MatDialog, private _secretaryService: SecretaryService, private _snackBar :MatSnackBar) {
-    
+
     this.dataSource = new MatTableDataSource();
   }
 
   ngOnInit(): void {
-    this.obtenerSecretarys(); 
+    this.obtenerSecretarys();
   }
 
   ngAfterViewInit(): void {
@@ -44,10 +44,10 @@ export class ListSecretarysComponent implements OnInit, AfterViewInit {
       this.dataSource.data = data;
       //console.log('DataSource data:', this.dataSource.data);  Debería mostrar los mismos datos que el log anterior
       this.dataSource.paginator = this.paginator;
-      
+
       this.dataSource.sort = this.sort;}, error => {
-        console.error('Error al obtener secretarys:', error);
-      
+        console.error('Error al obtener secretaries:', error);
+
       /*this.dataSource = new MatTableDataSource(data);
       this.dataSource.paginator = this.paginator;
       this.dataSource.paginator._intl.itemsPerPageLabel = "Items por pagina"
