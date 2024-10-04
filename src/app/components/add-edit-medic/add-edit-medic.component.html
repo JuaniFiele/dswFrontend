@@ -134,20 +134,20 @@
       </div>
     </div>
 
-    <!-- "acá se puede agregar el campo especialidad" 
+    <!-- "acá se puede agregar el campo especialidad" -->
     <div class="row">
       <div class="column">
         <mat-form-field>
           <mat-label>Especialidad</mat-label>
           <mat-select formControlName="specialty">
-            <mat-option *ngFor="let item of Especialidad" [value]="item">
-              {{item}}
+            <mat-option *ngFor="let item of specialties" [value]="item">
+              {{item.name}}
             </mat-option>
           </mat-select>
         </mat-form-field>
       </div>
     </div>
-    -->
+    
   </mat-dialog-content>
 
   <mat-dialog-actions align="end">

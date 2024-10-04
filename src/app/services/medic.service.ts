@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { map, Observable } from 'rxjs';
 import { Medic } from '../interfaces/medic.js';
 
 
@@ -18,8 +18,12 @@ export class MedicService {
   }
 
   getMedics() : Observable<Medic[]> {
-    return this.http.get<Medic[]>(`${this.myAppUrl}${this.myApiUrl}`);
+    return this.http.get<{data: Medic[]}>(`${this.myAppUrl}${this.myApiUrl}`)
+      .pipe(
+        map(response => response.data) // Extrae el array de la propiedad `data`
+      );
   }
+
 
   deleteMedico(id: number) : Observable<void> {
     return this.http.delete<void>(`${this.myAppUrl}${this.myApiUrl}/${id}`);

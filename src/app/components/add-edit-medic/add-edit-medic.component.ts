@@ -4,6 +4,8 @@ import { MatDialogRef } from '@angular/material/dialog';
 import { Medic } from '../../interfaces/medic.js';
 import { MedicService } from '../../services/medic.service.js';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { SpecialtyService } from '../../services/specialty.service.js';
+import { Specialty } from '../../interfaces/specialty.js';
 
 @Component({
   selector: 'app-add-edit-medic',
@@ -15,11 +17,11 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 
 export class AddEditMedicComponent implements OnInit {
   tipoDocumento: string[] = ['DNI', 'Libreta Civica', 'Pasaporte'];
-  //Especialidad: string[] = ['General', 'Cardiologia', 'Dermatologia', 'Endocrinologia', 'Gastroenterologia'];
+  specialties: Specialty[] = [];
   form: FormGroup;
   loading: boolean = false;
 
-  constructor(public dialogRef: MatDialogRef<AddEditMedicComponent>,
+  constructor(public dialogRef: MatDialogRef<AddEditMedicComponent>, private _specialtyService: SpecialtyService,
     public fb: FormBuilder, private _medicService: MedicService
   , private _snackBar: MatSnackBar) {
     this.form = this.fb.group({
@@ -31,12 +33,13 @@ export class AddEditMedicComponent implements OnInit {
       password: ['', [Validators.required, Validators.maxLength(12)]],
       medicalConsultationValue: ['', [Validators.required, Validators.maxLength(5)]],
       license: ['', [Validators.required, Validators.pattern('^[0-5]*$')]],
-      //specialty: ['', Validators.required]
+      specialty: ['', Validators.required]
       //consultationHours: ['', Validators.required]
     })
   }
 
   ngOnInit(): void {
+    this.obternerEspecialidades();
   }
 
   cancelar() {
@@ -45,6 +48,13 @@ export class AddEditMedicComponent implements OnInit {
   mensajeExito() {
     this._snackBar.open('Medico agregado con exito', '', {
       duration: 1500,
+    });
+  }
+
+  obternerEspecialidades() {
+    this._specialtyService.getSpecialties().subscribe(data => {
+      this.specialties = data;
+      console.log('Especialidades:', this.specialties);
     });
   }
 
@@ -62,7 +72,7 @@ export class AddEditMedicComponent implements OnInit {
         password: this.form.value.password,
         medicalConsultationValue: this.form.value.medicalConsultationValue,
         license: this.form.value.license,
-        //specialty: this.form.value.Especialidad
+        specialty: this.form.value.specialty.id
         //consultationHours: this.form.value.consultationHours
       }
 

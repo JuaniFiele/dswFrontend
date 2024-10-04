@@ -7,6 +7,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { AddEditMedicComponent } from '../add-edit-medic/add-edit-medic.component.js';
 import { MedicService } from '../../services/medic.service.js';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { Specialty } from '../../interfaces/specialty.js';
 
 
 
@@ -18,8 +19,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
   styleUrl: './list-medics.component.css',
 })
 export class ListMedicsComponent implements OnInit, AfterViewInit {
-  displayedColumns: string[] = ['dniType', 'dni', 'firstname', 'lastname', 'username', 'password', 'medicalConsultationValue', 'license', 'acciones'];
-  //falta specialty 
+  displayedColumns: string[] = ['dniType', 'dni', 'firstname', 'lastname', 'username', 'password', 'medicalConsultationValue', 'license','specialty', 'acciones'];
   dataSource: MatTableDataSource<Medic>;
   loading: boolean = false;
 
@@ -40,14 +40,26 @@ export class ListMedicsComponent implements OnInit, AfterViewInit {
     this.dataSource.sort = this.sort;
   }
 
+
   obtenerMedicos() {
-      this._medicService.getMedics().subscribe(response => {
-        console.log('Data recibida del backend:', response);
-        this.dataSource.data = response; // Asigna directamente la respuesta
-      }, error => {
-        console.error('Error al obtener medicos:', error);
-      });
-    }
+    this._medicService.getMedics().subscribe(data => {
+      console.log('Data recibida del backend:', data );
+      this.dataSource.data = data;
+      //console.log('DataSource data:', this.dataSource.data);  Debería mostrar los mismos datos que el log anterior
+      this.dataSource.paginator = this.paginator;
+
+      this.dataSource.sort = this.sort;
+    }, error => {
+      console.error('Error al obtener medicos:', error);
+
+      /*this.dataSource = new MatTableDataSource(data);
+      this.dataSource.paginator = this.paginator;
+      this.dataSource.paginator._intl.itemsPerPageLabel = "Items por pagina"
+      this.dataSource.sort = this.sort;*/
+    });
+  }
+
+
 
   
 

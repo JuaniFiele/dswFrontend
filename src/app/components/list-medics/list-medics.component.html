@@ -64,12 +64,12 @@
       <td mat-cell *matCellDef="let element"> {{element.license}} </td>
     </ng-container>
 
-    <!-- specialty Column 
+    <!-- specialty Column -->
     <ng-container matColumnDef="specialty">
       <th mat-header-cell *matHeaderCellDef> Especialidad </th> 
-      <td mat-cell *matCellDef="let element"> {{element.specialty}} </td>
+      <td mat-cell *matCellDef="let element"> {{element.specialty.name}} </td>
     </ng-container>
-    -->
+    
     <!-- consultationHours Column 
         <ng-container matColumnDef="consultationHours">
           <th mat-header-cell *matHeaderCellDef> Horarios de consulta </th> 
