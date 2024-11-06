@@ -8,6 +8,7 @@ import { ConsultationHoursService } from '../../services/consultationHours.servi
 import { Attention } from '../../interfaces/attention.js';
 import { Patient } from '../../interfaces/patient.js';
 import { PatientService } from '../../services/patient.service.js';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-otorgar-turno',
@@ -20,11 +21,13 @@ export class OtorgarTurnoComponent  implements OnInit{
   consultationHours: ConsultationHours[] = [];
   form: FormGroup;
 
+
   constructor( @Optional() public dialogRef: MatDialogRef<OtorgarTurnoComponent>,
     private fb: FormBuilder 
     , private _medicService: MedicService
     , private _consultationHoursService: ConsultationHoursService
     , private _patientService: PatientService
+    , private _snackBar: MatSnackBar
     
     ) {
       this.form = this.fb.group({
@@ -36,16 +39,54 @@ export class OtorgarTurnoComponent  implements OnInit{
      }
 
 
+  verifyPatientDni(dni: number) {
+    this._patientService.getPatientByDni(this.form.value.dni).subscribe(
+      (patient: Patient | null) => {
+        if (patient) {
+         
+        } else {
+         
+        }
+      },
+      (error) => {
+         }
+    );
+  }
+
+
+
+
   addTurno() {
 
     this.loading = true;
-    const aPatient : any= this._patientService.getPatientByDni(this.form.value.dni);
-    const aAttention: Attention  = {
-      patient: aPatient, 
-      date: this.form.value.date,
-      consultationHours: this.form.value.consultationHours,
-      medic: this.form.value.medic,
-    }
+    const aPatient : any= this._patientService.getPatientByDni(this.form.value.dni).subscribe(
+      (patient: Patient | null) => {
+        if(patient){
+          const aAttention: Attention = {
+            patient: aPatient,
+            date: this.form.value.date,
+            consultationHours: this.form.value.consultationHours,
+            medic: this.form.value.medic,
+          };
+          this.loading = false;
+          this.dialogRef.close(true);
+        }
+        else{
+        (error: any) => {
+          // Manejo de error en caso de fallo de la consulta
+          this.loading = false;
+          console.error(error);
+          this._snackBar.open('Error al verificar el paciente. Intenta nuevamente.', '', {
+            duration: 3000,
+            horizontalPosition: 'center',
+            verticalPosition: 'bottom'
+          });
+        }
+      }
+
+      });
+    
+    
    
     //this._attentionService.addConsultationHours(aAttention).subscribe(() => {
     //  this.successMessage('agregada');
@@ -54,6 +95,7 @@ export class OtorgarTurnoComponent  implements OnInit{
     this.loading = false;
     this.dialogRef.close(true);
   }
+
   
   ngOnInit(): void {
    this.obternerHoras();

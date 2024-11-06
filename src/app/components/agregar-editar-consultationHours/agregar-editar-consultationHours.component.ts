@@ -43,11 +43,13 @@ export class AgregarEditarConsultationHoursComponent implements OnInit {
         medic:[null, [Validators.required]]
       })
       this.id = data.id;
+      
      }
 
   ngOnInit(): void {
+    this.obternerMedicos();
     this.isEdit(this.id);
-    this.obternerMedicos() ;
+  
   }
 
   isEdit(id: number | undefined){
@@ -64,7 +66,7 @@ export class AgregarEditarConsultationHoursComponent implements OnInit {
         day: data.day,
         startTime: data.startTime,
         endTime: data.endTime,
-        medic: medic 
+        medic: medic
       });
     });
   }
