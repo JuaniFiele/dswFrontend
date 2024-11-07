@@ -6,4 +6,6 @@ import { Component } from '@angular/core';
   styleUrls: ['./med-menu.component.css']
 })
 export class MedicMenuComponent {
+  constructor() { }
+  
 }

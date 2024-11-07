@@ -21,6 +21,7 @@ export class AgregarEditarPatientComponent implements OnInit {
   loading : boolean = false;
   operacion: string = 'Agregar';
   id: number | undefined;
+dni: any;
   constructor(public dialogRef: MatDialogRef<AgregarEditarPatientComponent>, private _healthInsuranceService: HealthInsuranceService, private fb:FormBuilder, private _patientService: PatientService,private _snackBar :MatSnackBar, dateAdapter:DateAdapter<any>, @Inject(MAT_DIALOG_DATA) public data: any) {
     this.form = this.fb.group({
       firstname: [null, [Validators.required, Validators.maxLength(40)]],

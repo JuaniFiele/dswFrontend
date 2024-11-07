@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { ServerModule } from '@angular/platform-server';
-import { AppModule } from './app.module';  // Asegúrate de que la ruta sea correcta
+import { AppModule } from './app.module';  
 import { AppComponent } from './app.component';
 
 @NgModule({
