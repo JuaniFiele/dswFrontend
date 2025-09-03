@@ -12,14 +12,11 @@
           placeholder="Ingrese el DNI"
           required
         />
-        <div class="error">
-
-          <span *ngIf="error">
-            El codigo es un campo <strong>Obligatorio</strong>
-          </span>
-          <span *ngIf="error">
-            No se encontro ese Paciente, revise el DNI ingresado
-          </span>
+        <div *ngIf="error" class="error-text">
+          El DNI es un campo <strong>Obligatorio</strong>
+        </div>
+        <div *ngIf="errorDeDNI" class="error-text">
+          No se encontró ese paciente, revise el DNI ingresado
         </div>
         <button type="submit">Buscar</button>
       </form>

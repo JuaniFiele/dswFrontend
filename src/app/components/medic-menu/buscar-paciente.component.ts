@@ -18,24 +18,24 @@ export class BuscarPacienteComponent {
 
   buscarPaciente(): void {
     if (this.dni) {
-
-      this._PatientService.getPatientByDni(this.dni).subscribe(response => {
-        console.log(response.dni); //Ve si llego un paciente (osea no es null)
-        if(response)
-          {
-            this.router.navigate(['/hc-paciente', response.dni ]);
+      this.error = false;
+      this.errorDeDNI = false;
+      this._PatientService.getPatientByDni(this.dni).subscribe({
+        next: (response) => {
+          if (response) {
+            this.router.navigate(['/hc-paciente', response.dni]);
+          } else {
+            this.errorDeDNI = true;
           }
-        else
-        {
+        },
+        error: (err) => {
           this.errorDeDNI = true;
         }
       });
-    }
-    else
-    {
+    } else {
       this.error = true;
+      this.errorDeDNI = false;
     }
-
   }
 
 }
