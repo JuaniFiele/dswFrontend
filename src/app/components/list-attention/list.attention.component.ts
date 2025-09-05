@@ -6,12 +6,13 @@ import { MatSort } from '@angular/material/sort';
 import { MatDialog } from '@angular/material/dialog';
 import { AttentionService } from '../../services/attentions.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
-
+import { DatePipe } from '@angular/common';
 
 @Component({
   selector: 'app-list-attention',
   templateUrl: './list-attention.component.html',
-  styleUrl: './list-attention.component.css'
+  styleUrl: './list-attention.component.css',
+  providers: [DatePipe] 
 })
 export class ListAttentionsComponent implements OnInit, AfterViewInit {
   displayedColumns: string[] = ['date', 'consultationHours', 'patient','medic', 'dateCancelled','paymentDate', "acciones"];
@@ -20,9 +21,10 @@ export class ListAttentionsComponent implements OnInit, AfterViewInit {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
-  constructor(public dialog: MatDialog, private _attentionService: AttentionService, private _snackBar: MatSnackBar
+  constructor(public dialog: MatDialog, private _attentionService: AttentionService, private _snackBar: MatSnackBar, private datePipe: DatePipe 
   ) {
 
+    this.dataSource = new MatTableDataSource();
     this.dataSource = new MatTableDataSource();
   }
 
@@ -33,6 +35,7 @@ export class ListAttentionsComponent implements OnInit, AfterViewInit {
   ngAfterViewInit(): void {
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
+    this.setupFilterAndSorting(); // <-- ESTA LÍNEA ES NUEVA
   }
 
   obtenerAttentions() {
@@ -165,5 +168,32 @@ export class ListAttentionsComponent implements OnInit, AfterViewInit {
       verticalPosition: 'bottom'
       });}
   
+  setupFilterAndSorting(): void {
+  // Lógica para el filtro personalizado
+  this.dataSource.filterPredicate = (data: Attention, filter: string) => {
+    const dataStr =
+      // Formatear la fecha
+      (this.datePipe.transform(data.date, 'dd/MM/yyyy') || '').toLowerCase() +
+      // Buscar en la hora
+      (data.consultationHours?.startTime || '').toLowerCase() +
+      // ¡BUSCAR DENTRO DEL OBJETO PATIENT!
+      (data.patient?.dni || '').toLowerCase() +
+      // ¡BUSCAR DENTRO DEL OBJETO MEDIC!
+      (data.consultationHours?.medic?.firstname || '').toLowerCase() +
+      (data.consultationHours?.medic?.lastname || '').toLowerCase() +
+      (data.consultationHours?.medic?.specialty?.name || '').toLowerCase();
+    
+    return dataStr.includes(filter.trim().toLowerCase());
+  };
 
+  // Lógica para el ordenamiento de datos anidados (BONUS)
+  this.dataSource.sortingDataAccessor = (item, property) => {
+    switch (property) {
+      case 'patient': return item.patient.dni;
+      case 'consultationHours': return item.consultationHours.startTime;
+      case 'medic': return `${item.consultationHours.medic.firstname} ${item.consultationHours.medic.lastname}`;
+      default: return (item as any)[property];
+    }
+  };
+}
 }
