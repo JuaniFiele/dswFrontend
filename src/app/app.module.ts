@@ -3,6 +3,10 @@ import { NgModule } from '@angular/core';
 import { BrowserModule, provideClientHydration } from '@angular/platform-browser';
 
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatOptionModule } from '@angular/material/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { AppRoutingModule } from './app-routing.module';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
@@ -72,7 +76,11 @@ import { ListAttentionsComponent } from './components/list-attention/list.attent
     BrowserModule,
     AppRoutingModule,
     SharedModule,
-    MatProgressSpinnerModule,
+  MatProgressSpinnerModule,
+  MatAutocompleteModule,
+  MatFormFieldModule,
+  MatInputModule,
+  MatOptionModule,
     FormsModule,
     MatSnackBarModule
   ],

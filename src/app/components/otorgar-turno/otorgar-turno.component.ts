@@ -13,6 +13,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDatepickerModule } from '@angular/material/datepicker/index.js';
 import { ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
+
 @Component({
   selector: 'app-otorgar-turno',
   templateUrl: './otorgar-turno.component.html',
@@ -24,140 +25,215 @@ export class OtorgarTurnoComponent implements OnInit {
   consultationHours: ConsultationHours[] = [];
   filteredConsultationHours: ConsultationHours[] = [];
   form: FormGroup;
+  filteredPatients: Patient[] = [];
+  allPatients: Patient[] = [];
   patientNotFound: boolean = false;
+  unabailableDates: any;
 
-  constructor(@Optional() public dialogRef: MatDialogRef<OtorgarTurnoComponent>,
-    private fb: FormBuilder
-    , private _medicService: MedicService
-    , private _consultationHoursService: ConsultationHoursService
-    , private _patientService: PatientService
-    , private _attentionService: AttentionService
-    , private _snackBar: MatSnackBar
-    , private cdr: ChangeDetectorRef
-    , private router: Router
+  constructor(
+    @Optional() public dialogRef: MatDialogRef<OtorgarTurnoComponent>,
+    private fb: FormBuilder,
+    private _medicService: MedicService,
+    private _consultationHoursService: ConsultationHoursService,
+    private _patientService: PatientService,
+    private _attentionService: AttentionService,
+    private _snackBar: MatSnackBar,
+    private cdr: ChangeDetectorRef,
+    private router: Router
   ) {
     this.form = this.fb.group({
-      dni: [null, [Validators.required]],
+      patientSearch: [null, [Validators.required]],
       medic: [null, [Validators.required]],
       date: [Date, [Validators.required]],
-      consultationHours: [null, [Validators.required]]
-    })
-  }
-
-
-  addTurno() {
-    this.loading = true;
-  
-    // Obtener el paciente mediante suscripción
-    this._patientService.getPatientByDni(this.form.value.dni).subscribe((aPatient: any) => {
-      const aAttention: Attention = {
-        patient: aPatient.id, // Aquí ya tenemos el paciente
-        date: this.form.value.date,
-        consultationHours: this.form.value.consultationHours.id,
-      };
-  
-      console.log('Atención:', aAttention);
-  
-      // Agregar la atención
-      this._attentionService.addAttention(aAttention).subscribe(() => {
-        this.successMessage('agregada');
-        console.log('Turno agregado:', aAttention); // para probar
-        
-      });
-
-      //Muestra las atenciones
-      this._attentionService.getAttentions().subscribe((atenciones) => {
-      console.log('Atenciones:', atenciones)});
-  
-      this.loading = false;
-      //this.dialogRef.close(true);
-    }, (error) => {
-      // Manejo de errores al obtener el paciente
-      console.error('Error al obtener el paciente:', error);
-      this.loading = false;
+      consultationHours: [null, [Validators.required]],
     });
   }
-  
 
   ngOnInit(): void {
     this.obternerHoras();
     this.obternerMedicos();
+    this.loadAllPatients();
   }
+
+  loadAllPatients(): void {
+    this._patientService.getPatients().subscribe(patients => {
+      this.allPatients = patients;
+    });
+  }
+
+  searchPatient(): void {
+    const searchTerm = this.form.get('patientSearch')?.value;
+    
+    if (typeof searchTerm === 'string') {
+      if (searchTerm.length < 2) {
+        this.filteredPatients = [];
+        this.patientNotFound = false;
+        return;
+      }
+      
+      const term = searchTerm.toLowerCase();
+      this.filteredPatients = this.allPatients.filter(patient => 
+        patient.dni.toLowerCase().includes(term) ||
+        patient.firstname.toLowerCase().includes(term) ||
+        patient.lastname.toLowerCase().includes(term)
+      );
+      
+      this.patientNotFound = this.filteredPatients.length === 0;
+      if (this.patientNotFound) {
+        this.form.get('patientSearch')?.setErrors({ patientNotFound: true });
+      } else {
+        this.form.get('patientSearch')?.setErrors(null);
+      }
+    }
+  }
+
+  displayPatient(patient: Patient): string {
+    return patient ? `${patient.dni} - ${patient.firstname} ${patient.lastname}` : '';
+  }
+
+  addTurno() {
+    this.loading = true;
+    
+    const selectedPatient = this.form.value.patientSearch;
+    
+    if (!selectedPatient || typeof selectedPatient === 'string') {
+      this._snackBar.open('Por favor seleccione un paciente válido', '', {
+        duration: 3000,
+        horizontalPosition: 'center',
+        verticalPosition: 'bottom',
+      });
+      this.loading = false;
+      return;
+    }
+
+    const aAttention: Attention = {
+      patient: selectedPatient.id,
+      date: this.form.value.date,
+      consultationHours: this.form.value.consultationHours.id,
+    };
+
+    this._attentionService.addAttention(aAttention).subscribe(() => {
+      this.successMessage('agregada');
+      setTimeout(() => {
+        window.location.reload();
+      }, 1500);
+    }, error => {
+      console.error('Error al agregar atención:', error);
+      this.loading = false;
+    });
+  }
+
   cancelar() {
+    this._snackBar.open('Turno cancelado', '', {
+      duration: 1500,
+      horizontalPosition: 'center',
+      verticalPosition: 'bottom',
+    });
+
+    setTimeout(() => {
+      window.location.reload();
+    }, 1500);
+
     this.dialogRef.close(false);
   }
 
   obternerMedicos() {
-    this._medicService.getMedics().subscribe(data => {
+    this._medicService.getMedics().subscribe((data) => {
       this.medics = data;
-      console.log('Medicos:', this.medics);
     });
   }
 
   obternerHoras() {
-    
-
-    this._consultationHoursService.getAllConsultationHours().subscribe(data => {
-      this.consultationHours = data;
-      //Filtro los horarios segun su medico y que no tengaa una atencion
-      
-     
-      console.log('Horas de consulta:', this.consultationHours);
-    });
+    this._consultationHoursService
+      .getAllConsultationHours()
+      .subscribe((data) => {
+        this.consultationHours = data;
+      });
   }
 
   successMessage(operation: string) {
-    this._snackBar.open(`La consulta fue ${operation} con exito`, "", {
+    this._snackBar.open(`La consulta fue ${operation} con exito`, '', {
       duration: 3000,
       horizontalPosition: 'center',
-      verticalPosition: 'bottom'
+      verticalPosition: 'bottom',
     });
   }
-    myFilter = (d: Date | null): boolean => {
-      const day = (d || new Date()).getDay();
-      // Prevent Saturday and Sunday from being selected.
-      const days = ["Lunes","Martes","Miercoles","Jueves","Viernes","Sabado","Domingo"];
-      const attentionDays:number[] = []
-      //Filtro los dias de atencion y guardo 1 para lunes, 2 para martes, etc
-      this.filteredConsultationHours.forEach(element => {
-        attentionDays.push(days.indexOf(element.day));
-      });
-      
-      //retorna true si el dia no esta en el array de dias de atencion
-      return attentionDays.includes(day-1) ;
-    };
-  
-    onMedicChange(selectedMedic: any): void {
-      console.log('Médico seleccionado:', selectedMedic);
-      this.filteredConsultationHours = this.consultationHours.filter((consultationHour) => {
-        return consultationHour.medic.id === selectedMedic.id;
-      });
-      console.log('Horas de consulta filtradas:', this.filteredConsultationHours);
+
+  myFilter = (d: Date | null): boolean => {
+    const day = (d || new Date()).getDay();
+    const days = [
+      'Lunes',
+      'Martes',
+      'Miercoles',
+      'Jueves',
+      'Viernes',
+      'Sabado',
+      'Domingo',
+    ];
+    const attentionDays: number[] = [];
+    
+    this.filteredConsultationHours.forEach((element) => {
+      attentionDays.push(days.indexOf(element.day));
+    });
+
+    const medic = this.form.value.medic;
+
+    if (this.unabailableDates) {
+      const unavailable = this.unabailableDates.find(
+        (date: string) => date === d?.toISOString().slice(0, 10)
+      );
+      if (unavailable) return false;
     }
 
-    checkPatient() {
-      const dni = this.form.get('dni')?.value;
-      if (!dni) return; // No realizar la búsqueda si el campo está vacío
-      console.log('Buscando paciente con DNI:', dni);
+    return attentionDays.includes(day - 1);
+  };
+
+  onMedicChange(selectedMedic: any): void {
+    this.filteredConsultationHours = this.consultationHours.filter(
+      (consultationHour) => {
+        return consultationHour.medic.id === selectedMedic.id;
+      }
+    );
+
+    this._attentionService
+      .getUnavailableDates(selectedMedic.id)
+      .subscribe((data) => {
+        this.unabailableDates = data;
+      });
+  }
+
+  onDateChange(): void {
+    const selectedDate = this.form.value.date;
+    if (!selectedDate) return;
+
+    const day = selectedDate.getDay();
+    const days = [
+      'Domingo',
+      'Lunes',
+      'Martes',
+      'Miercoles',
+      'Jueves',
+      'Viernes',
+      'Sábado',
+    ];
+    const daySelected = days[day];
+
+    let availableHours = this.filteredConsultationHours.filter(
+      (consultationHour) => consultationHour.day === daySelected
+    );
+    const formattedDate = selectedDate.toISOString().split('T')[0];
     
-      this._patientService.getPatientByDni(dni).subscribe(
-        (aPatient: any) => {
-          this.patientNotFound = false; // El paciente existe
-          console.log('Paciente encontrado:', aPatient);
-          this.form.get('dni')?.setErrors(null); // Si el paciente existe, eliminamos el error
-          this.cdr.detectChanges();  // Forzar la detección de cambios
-        },
-        (error) => {
-          this.patientNotFound = true; // El paciente no existe
-          console.error('Paciente no encontrado:', error);
-          this.form.get('dni')?.setErrors({ patientNotFound: true }); // Establecemos el error
-          this.cdr.detectChanges();  // Forzar la detección de cambios
-        }
-      );
-    }
-    redirectToCreatePatient(): void {
-      this.router.navigate(['/patient']);  // Asegúrate de que esta ruta exista
-    }
-    
+    this._attentionService
+      .getAttentionsByDate(selectedDate)
+      .subscribe((data) => {
+        const occupiedHours = data;
+        this.filteredConsultationHours = availableHours.filter(
+          (consultationHour) => !occupiedHours.includes(consultationHour.id)
+        );
+      });
+  }
+
+  redirectToCreatePatient(): void {
+    this.router.navigate(['/patient']);
+  }
 }
-  
