@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { Patient } from '../interfaces/patient';
 import { Observable, throwError } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
+import { Attention } from '../interfaces/attention.js';
 
 @Injectable({
   providedIn: 'root'
@@ -90,7 +91,7 @@ export class PatientService {
   }
 
   // Obtiene un paciente por DNI
-  getPatientByDni(dni: string): Observable<Patient> {
+  getPatientByDni(dni: string): Observable<any> {
     // Recuperar el token del localStorage
     const token = localStorage.getItem('token');
 
@@ -106,9 +107,43 @@ export class PatientService {
       );
   }
 
+  getAttentionsForOneMedic(patientId: number): Observable<Attention[]> {
+    // Recuperar el token del localStorage
+    const token = localStorage.getItem('token');
+
+    // Configurar las cabeceras con el token
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`,
+    });
+
+    return this.http.get<{ data: Attention[] }>(`${this.myAppUrl}${this.myApiUrl}/${patientId}/attentions`, { headers })
+      .pipe(
+        map(response => response.data),
+        catchError(this.handleError)
+      );
+}
+
   // Manejo de errores
   private handleError(error: any): Observable<never> {
     console.error('Ha ocurrido un error:', error);
     return throwError('Algo salió mal; por favor, inténtelo nuevamente más tarde.');
   }
+
+  // Buscar pacientes por nombre, apellido o DNI y mostrarlos en el autocomplete
+  searchPatients(term: string): Observable<Patient[]> {
+    // Recuperar el token del localStorage
+    const token = localStorage.getItem('token');
+
+    // Configurar las cabeceras con el token
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`,
+    });
+
+    return this.http.get<{ data: Patient[] }>(`${this.myAppUrl}${this.myApiUrl}//${term}`, { headers })
+      .pipe(
+        map(response => response.data),
+        catchError(this.handleError)
+      );
+  }
+
 }

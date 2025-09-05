@@ -15,8 +15,6 @@ import { MatSort } from '@angular/material/sort';
 import { After } from 'v8';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { EditarConsultaComponent } from './editar-consulta/editar-consulta.component.js';
-import { AgregarConsultaComponent } from './agregar-consulta/agregar-consulta.component.js';
-
 
 @Component({
   selector: 'app-paciente-detalle',
@@ -112,7 +110,7 @@ export class HCPacienteComponent implements OnInit , AfterViewInit {
 
   loadPatientAttentions(id : number): void {
     this.loading = true;
-    this._AttentionService.getAttentionsByPatientId(id).subscribe(
+    this._PatientService.getAttentionsForOneMedic(id).subscribe(
       data =>{
       if (data && data.length > 0) { // here i check if data is valid and not empty
         this.dataSource.data = data;
@@ -164,24 +162,24 @@ export class HCPacienteComponent implements OnInit , AfterViewInit {
     });
   }
 
+  // not in use anymore, but i leave it here in case we need it later
+  // addConsulta(){
 
-  addConsulta(){
+  //   const dialogRef = this.dialog.open(AgregarConsultaComponent, {
+  //     width: '800px',
+  //     disableClose: true,
+  //     data: {id: this.idPac }
+  //   });
 
-    const dialogRef = this.dialog.open(AgregarConsultaComponent, {
-      width: '800px',
-      disableClose: true,
-      data: {id: this.idPac }
-    });
+  //   dialogRef.afterClosed().subscribe(result => {
+  //     console.log('The dialog was closed');
+  //     if(result){
+  //       this.loadPatientAttentions(this.idPac);
+  //     }
+  //     this.loadPatientAttentions(this.idPac)
+  //   });
 
-    dialogRef.afterClosed().subscribe(result => {
-      console.log('The dialog was closed');
-      if(result){
-        this.loadPatientAttentions(this.idPac);
-      }
-      this.loadPatientAttentions(this.idPac)
-    });
-
-  }
+  // }
 
   editAttention( id?:number){
 
@@ -200,14 +198,43 @@ export class HCPacienteComponent implements OnInit , AfterViewInit {
 
   }
 
-  deleteAttention(id: number){
-    this._AttentionService.deleteAttention(id).subscribe(data => {
-      this.loadPatientAttentions(this.idPac);
-      this.successMessage();
-    }, error => {
-      console.error('Error al eliminar patient:', error);
+  completeAttention(id?: number, paymentDate?: string) {
+  // Verificar si paymentDate es nulo o vacío
+  if (paymentDate === null || paymentDate === "") {
+    this._snackBar.open('No se puede completar la consulta, ya que no fue pagada aún', "", {
+      duration: 3000,
+      horizontalPosition: 'center',
+      verticalPosition: 'bottom'
     });
+    return;
   }
+
+  // Si la consulta está pagada, abrir el diálogo para editarla
+  const dialogRef = this.dialog.open(EditarConsultaComponent, {
+    width: '800px',
+    disableClose: true,
+    data: { id: id }
+  });
+
+  dialogRef.afterClosed().subscribe(result => {
+    console.log('The dialog was closed');
+    if (result) {
+      this.loadPatientAttentions(this.idPac);
+    }
+  });
+}
+
+
+  //LEGACY CODE, ITS HERE BEACUSE OF BUISENESS LOGIC HAS CHANGED, AND NOW MEDICS DONT DELETE ATTENTIONS, THEY JUST EDIT THEM
+
+  // deleteAttention(id: number){
+  //   this._AttentionService.deleteAttention(id).subscribe(data => {
+  //     this.loadPatientAttentions(this.idPac);
+  //     this.successMessage();
+  //   }, error => {
+  //     console.error('Error al eliminar patient:', error);
+  //   });
+  // }
 
 
   successMessage(){
