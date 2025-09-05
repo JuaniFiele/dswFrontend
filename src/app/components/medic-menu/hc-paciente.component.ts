@@ -15,11 +15,13 @@ import { MatSort } from '@angular/material/sort';
 import { After } from 'v8';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { EditarConsultaComponent } from './editar-consulta/editar-consulta.component.js';
+import { DatePipe } from '@angular/common';
 
 @Component({
   selector: 'app-paciente-detalle',
   templateUrl: './hc-paciente.component.html',
-  styleUrls: ['./hc-paciente.component.css']
+  styleUrls: ['./hc-paciente.component.css'],
+  providers: [DatePipe] // <-- ESTA LÍNEA ES NUEVA
 })
 export class HCPacienteComponent implements OnInit , AfterViewInit {
   patientInfo: { label: string, value: string }[] = [];
@@ -40,7 +42,8 @@ export class HCPacienteComponent implements OnInit , AfterViewInit {
     private _PatientService: PatientService,
     private _AttentionService: AttentionService ,
     private dialog: MatDialog,
-    private _snackBar :MatSnackBar
+    private _snackBar :MatSnackBar,
+    private datePipe: DatePipe
     ) {
       this.dataSource = new MatTableDataSource();
     }
@@ -53,6 +56,7 @@ export class HCPacienteComponent implements OnInit , AfterViewInit {
   ngAfterViewInit(): void {
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
+     this.setupFilterPredicate();
   }
 
   loadPatientData(): void {
@@ -244,6 +248,21 @@ export class HCPacienteComponent implements OnInit , AfterViewInit {
       verticalPosition: 'bottom'
     });
   }
+  setupFilterPredicate() {
+    this.dataSource.filterPredicate = (data: Attention, filter: string): boolean => {
+      const filterValue = filter.trim().toLowerCase();
 
+      // Formateamos la fecha de la fila actual al mismo formato que ve el usuario (dd/MM/yyyy)
+      const formattedDate = this.datePipe.transform(data.date, 'dd/MM/yyyy') || '';
+
+      // Creamos un string de búsqueda que incluya la fecha formateada y el motivo de la consulta
+      const dataStr =
+        formattedDate +
+        (data.reason || '').toLowerCase();
+
+      // Devolvemos true si el string de búsqueda incluye el valor del filtro
+      return dataStr.includes(filterValue);
+    };
+}
 
 }

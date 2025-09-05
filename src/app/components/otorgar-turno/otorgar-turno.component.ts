@@ -29,6 +29,7 @@ export class OtorgarTurnoComponent implements OnInit {
   allPatients: Patient[] = [];
   patientNotFound: boolean = false;
   unabailableDates: any;
+  minDate: Date = new Date(); 
 
   constructor(
     @Optional() public dialogRef: MatDialogRef<OtorgarTurnoComponent>,
